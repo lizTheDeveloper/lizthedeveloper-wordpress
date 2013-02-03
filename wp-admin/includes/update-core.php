@@ -535,20 +535,7 @@ $_old_files = array(
 'wp-includes/js/jquery/ui/jquery.effects.pulsate.min.js',
 'wp-includes/js/jquery/ui/jquery.effects.transfer.min.js',
 'wp-includes/js/jquery/ui/jquery.effects.fold.min.js',
-'wp-admin/images/screenshots/captions-1.png',
-'wp-admin/images/screenshots/captions-2.png',
-'wp-admin/images/screenshots/flex-header-1.png',
-'wp-admin/images/screenshots/flex-header-2.png',
-'wp-admin/images/screenshots/flex-header-3.png',
-'wp-admin/images/screenshots/flex-header-media-library.png',
-'wp-admin/images/screenshots/theme-customizer.png',
-'wp-admin/images/screenshots/twitter-embed-1.png',
-'wp-admin/images/screenshots/twitter-embed-2.png',
-'wp-admin/js/utils.js',
 'wp-admin/options-privacy.php',
-'wp-app.php',
-'wp-includes/class-wp-atom-server.php',
-'wp-includes/js/tinymce/themes/advanced/skins/wp_theme/ui.css',
 );
 
 /**
@@ -709,7 +696,9 @@ function update_core($from, $to) {
 	// 3.5 -> 3.5+ - an empty twentytwelve directory was created upon upgrade to 3.5 for some users, preventing installation of Twenty Twelve.
 	if ( '3.5' == $old_wp_version ) {
 		if ( is_dir( WP_CONTENT_DIR . '/themes/twentytwelve' ) && ! file_exists( WP_CONTENT_DIR . '/themes/twentytwelve/style.css' )  ) {
-			$wp_filesystem->delete( $wp_filesystem->wp_themes_dir() . 'twentytwelve/' );
+			// Bumping the introduced version to 3.5.1 for the affected users causes Twenty Twelve to be installed for the first time
+			if ( $wp_filesystem->delete( $wp_filesystem->wp_themes_dir() . 'twentytwelve/' ) )
+				$_new_bundled_files[ 'themes/twentytwelve/' ] = '3.5.1';
 		}
 	}
 

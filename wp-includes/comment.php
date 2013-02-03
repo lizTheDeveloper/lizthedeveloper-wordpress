@@ -250,10 +250,8 @@ class WP_Comment_Query {
 		// $args can be whatever, only use the args defined in defaults to compute the key
 		$key = md5( serialize( compact(array_keys($defaults)) )  );
 		$last_changed = wp_cache_get( 'last_changed', 'comment' );
-		if ( ! $last_changed ) {
-			$last_changed = 1;
-			wp_cache_set( 'last_changed', $last_changed, 'comment' );
-		}
+		if ( ! $last_changed )
+			$last_changed = wp_cache_set( 'last_changed', 1, 'comment' );
 		$cache_key = "get_comments:$key:$last_changed";
 
 		if ( $cache = wp_cache_get( $cache_key, 'comment' ) )
@@ -417,7 +415,7 @@ class WP_Comment_Query {
  *
  * @return array List of comment statuses.
  */
-function get_comment_statuses() {
+function get_comment_statuses( ) {
 	$status = array(
 		'hold'		=> __('Unapproved'),
 		/* translators: comment status  */
@@ -1675,7 +1673,7 @@ function discover_pingback_server_uri( $url, $deprecated = '' ) {
 	if ( preg_match('#(image|audio|video|model)/#is', wp_remote_retrieve_header( $response, 'content-type' )) )
 		return false;
 
-	// Now do a GET since we're going to look in the html headers (and we're sure it's not a binary file)
+	// Now do a GET since we're going to look in the html headers (and we're sure its not a binary file)
 	$response = wp_remote_get( $url, array( 'timeout' => 2, 'httpversion' => '1.0' ) );
 
 	if ( is_wp_error( $response ) )

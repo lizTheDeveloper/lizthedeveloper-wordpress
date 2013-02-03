@@ -792,9 +792,9 @@ h2 .nav-tab,
 
 .icon32 {
 	float: left;
-	height: 40px;
-	margin: 4px 6px 0 0;
-	width: 40px;
+	height: 34px;
+	margin: 7px 8px 0 0;
+	width: 36px;
 }
 
 .icon16 {
@@ -1141,11 +1141,6 @@ form.upgrade .hint {
 	font-style: italic;
 	font-size: 85%;
 	margin: -0.5em 0 2em 0;
-}
-
-.update-php .spinner {
-	float: none;
-	margin: -4px 0;
 }
 
 #ajax-loading,
@@ -2527,25 +2522,6 @@ table.fixed {
 	background-repeat: no-repeat;
 }
 
-tr.wp-locked .locked-indicator {
-	background: url('../images/lock16.png') no-repeat;
-	margin: -2px 0 0 8px;
-	height: 16px;
-	width: 16px;
-}
-
-tr.wp-locked .check-column label,
-tr.wp-locked .check-column input[type="checkbox"],
-tr.wp-locked .row-actions .inline,
-tr.wp-locked .row-actions .trash,
-.lock-holder {
-	display: none;
-}
-
-tr.wp-locked .lock-holder {
-	display: inline;
-}
-
 .fixed .column-comments .sorting-indicator {
 	margin-top: 3px;
 }
@@ -2810,7 +2786,6 @@ tr.inline-edit-row td,
 
 .inline-edit-row fieldset label.inline-edit-tags span.title {
 	margin: .2em 0;
-	width: auto;
 }
 
 .inline-edit-row fieldset label span.title {
@@ -2898,6 +2873,11 @@ tr.inline-edit-row td,
 	width: 8em;
 }
 
+.inline-edit-row .catshow,
+.inline-edit-row .cathide {
+	cursor: pointer;
+}
+
 ul.cat-checklist {
 	height: 12em;
 	border-style: solid;
@@ -2923,10 +2903,19 @@ ul.cat-checklist {
 }
 
 .inline-edit-row fieldset ul.cat-checklist label,
+.inline-edit-row .catshow,
+.inline-edit-row .cathide,
 .inline-edit-row #bulk-titles div {
 	font-family: sans-serif;
 	font-style: normal;
 	font-size: 11px;
+}
+
+table .inline-edit-row fieldset ul.cat-hover {
+	height: auto;
+	max-height: 30em;
+	overflow-y: auto;
+	position: absolute;
 }
 
 .inline-edit-row fieldset label input.inline-edit-menu-order-input {
@@ -4607,7 +4596,7 @@ span.imgedit-scale-warn {
 }
 
 h3.available-themes {
-	margin: 0.3em 0 1em;
+	margin: 0 0 1em;
 	float: left;
 }
 
@@ -8584,4 +8573,9 @@ a.widget-control-edit {
 }
 .locale-lt-lt .inline-edit-row fieldset label span.input-text-wrap {
 	margin-left: 8em;
+}
+
+.update-php .spinner {
+	float: none;
+	margin: -4px 0;
 }

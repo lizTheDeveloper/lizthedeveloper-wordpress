@@ -475,12 +475,6 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
 		$classes = $alternate . ' iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
-
-		$lock_holder = wp_check_post_lock( $post->ID );
-		if ( $lock_holder ) {
-			$classes .= ' wp-locked';
-			$lock_holder = get_userdata( $lock_holder );
-		}
 	?>
 		<tr id="post-<?php echo $post->ID; ?>" class="<?php echo implode( ' ', get_post_class( $classes, $post->ID ) ); ?>" valign="top">
 	<?php
@@ -501,23 +495,18 @@ class WP_Posts_List_Table extends WP_List_Table {
 			case 'cb':
 			?>
 			<th scope="row" class="check-column">
-				<?php
-				if ( $can_edit_post ) {
-
-				?>
+				<?php if ( $can_edit_post ) { ?>
 				<label class="screen-reader-text" for="cb-select-<?php the_ID(); ?>"><?php printf( __( 'Select %s' ), $title ); ?></label>
 				<input id="cb-select-<?php the_ID(); ?>" type="checkbox" name="post[]" value="<?php the_ID(); ?>" />
-				<div class="locked-indicator"></div>
-				<?php
-				}
-				?>
+				<?php } ?>
 			</th>
 			<?php
 			break;
 
 			case 'title':
-				$attributes = 'class="post-title page-title column-title"' . $style;
 				if ( $this->hierarchical_display ) {
+					$attributes = 'class="post-title page-title column-title"' . $style;
+
 					if ( 0 == $level && (int) $post->post_parent > 0 ) {
 						//sent level 0 by accident, by default, or because we don't know the actual level
 						$find_main_page = (int) $post->post_parent;
@@ -534,29 +523,22 @@ class WP_Posts_List_Table extends WP_List_Table {
 								$parent_name = apply_filters( 'the_title', $parent->post_title, $parent->ID );
 						}
 					}
+
+					$pad = str_repeat( '&#8212; ', $level );
+?>
+			<td <?php echo $attributes ?>><strong><?php if ( $can_edit_post && $post->post_status != 'trash' ) { ?><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php echo esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ); ?>"><?php echo $pad; echo $title ?></a><?php } else { echo $pad; echo $title; }; _post_states( $post ); echo isset( $parent_name ) ? ' | ' . $post_type_object->labels->parent_item_colon . ' ' . esc_html( $parent_name ) : ''; ?></strong>
+<?php
 				}
+				else {
+					$attributes = 'class="post-title page-title column-title"' . $style;
 
-				$pad = str_repeat( '&#8212; ', $level );
-				echo "<td $attributes><strong>";
-				if ( $can_edit_post && $post->post_status != 'trash' ) {
-					echo '<a class="row-title" href="' . $edit_link . '" title="' . esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ) . '">' . $pad . $title . '</a>';
-				} else {
-					echo $pad . $title;
-				}
-				_post_states( $post );
-
-				if ( isset( $parent_name ) )
-					echo ' | ' . $post_type_object->labels->parent_item_colon . ' ' . esc_html( $parent_name );
-
-				echo "</strong>\n";
-
-				if ( $lock_holder && $can_edit_post && $post->post_status != 'trash' ) {
-					printf( '<span class="lock-holder">%s</span>',
-						esc_html( sprintf( __( '%s is currently editing' ), $lock_holder->display_name )  ) );
-				}
-
-				if ( ! $this->hierarchical_display && 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) )
+					$pad = str_repeat( '&#8212; ', $level );
+?>
+			<td <?php echo $attributes ?>><strong><?php if ( $can_edit_post && $post->post_status != 'trash' ) { ?><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php echo esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ); ?>"><?php echo $pad; echo $title ?></a><?php } else { echo $pad; echo $title; }; _post_states( $post ); ?></strong>
+<?php
+					if ( 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) )
 						the_excerpt();
+				}
 
 				$actions = array();
 				if ( $can_edit_post && 'trash' != $post->post_status ) {
@@ -838,7 +820,10 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 	<?php foreach ( $hierarchical_taxonomies as $taxonomy ) : ?>
 
-			<span class="title inline-edit-categories-label"><?php echo esc_html( $taxonomy->labels->name ) ?></span>
+			<span class="title inline-edit-categories-label"><?php echo esc_html( $taxonomy->labels->name ) ?>
+				<span class="catshow"><?php _e( '[more]' ); ?></span>
+				<span class="cathide" style="display:none;"><?php _e( '[less]' ); ?></span>
+			</span>
 			<input type="hidden" name="<?php echo ( $taxonomy->name == 'category' ) ? 'post_category[]' : 'tax_input[' . esc_attr( $taxonomy->name ) . '][]'; ?>" value="0" />
 			<ul class="cat-checklist <?php echo esc_attr( $taxonomy->name )?>-checklist">
 				<?php wp_terms_checklist( null, array( 'taxonomy' => $taxonomy->name ) ) ?>

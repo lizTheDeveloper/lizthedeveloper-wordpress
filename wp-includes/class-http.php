@@ -134,14 +134,14 @@ class WP_Http {
 		unset( $homeURL );
 
 		// If we are streaming to a file but no filename was given drop it in the WP temp dir
-		// and pick its name using the basename of the $url
+		// and pick it's name using the basename of the $url
 		if ( $r['stream']  && empty( $r['filename'] ) )
 			$r['filename'] = get_temp_dir() . basename( $url );
 
 		// Force some settings if we are streaming to a file and check for existence and perms of destination directory
 		if ( $r['stream'] ) {
 			$r['blocking'] = true;
-			if ( ! wp_is_writable( dirname( $r['filename'] ) ) )
+			if ( ! call_user_func( 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) ) ? 'win_is_writable' : 'is_writable', dirname( $r['filename'] ) ) )
 				return new WP_Error( 'http_request_failed', __( 'Destination directory for file streaming does not exist or is not writable.' ) );
 		}
 
@@ -530,7 +530,7 @@ class WP_Http {
 		if ( !empty($wildcard_regex) )
 			return !preg_match($wildcard_regex, $check['host']);
 		else
-			return !in_array( $check['host'], $accessible_hosts ); //Inverse logic, If it's in the array, then we can't access it.
+			return !in_array( $check['host'], $accessible_hosts ); //Inverse logic, If its in the array, then we can't access it.
 
 	}
 
@@ -555,7 +555,7 @@ class WP_Http {
 		// Start off with the Absolute URL path
 		$path = ! empty( $url_parts['path'] ) ? $url_parts['path'] : '/';
 
-		// If it's a root-relative path, then great
+		// If the it's a root-relative path, then great
 		if ( ! empty( $relative_url_parts['path'] ) && '/' == $relative_url_parts['path'][0] ) {
 			$path = $relative_url_parts['path'];
 

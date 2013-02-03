@@ -240,9 +240,6 @@ function wp_delete_user( $id, $reassign = 'novalue' ) {
 	$id = (int) $id;
 	$user = new WP_User( $id );
 
-	if ( !$user->exists() )
-		return false;
-
 	// allow for transaction statement
 	do_action('delete_user', $id);
 

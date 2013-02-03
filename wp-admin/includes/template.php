@@ -176,6 +176,10 @@ function wp_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $ech
 	$terms = get_terms( $taxonomy, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => $number, 'hierarchical' => false ) );
 
 	$tax = get_taxonomy($taxonomy);
+	if ( ! current_user_can($tax->cap->assign_terms) )
+		$disabled = 'disabled="disabled"';
+	else
+		$disabled = '';
 
 	$popular_ids = array();
 	foreach ( (array) $terms as $term ) {
@@ -188,7 +192,7 @@ function wp_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $ech
 
 		<li id="<?php echo $id; ?>" class="popular-category">
 			<label class="selectit">
-			<input id="in-<?php echo $id; ?>" type="checkbox" <?php echo $checked; ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
+			<input id="in-<?php echo $id; ?>" type="checkbox" <?php echo $checked; ?> value="<?php echo (int) $term->term_id; ?>" <?php echo $disabled ?>/>
 				<?php echo esc_html( apply_filters( 'the_category', $term->name ) ); ?>
 			</label>
 		</li>
@@ -676,7 +680,7 @@ function parent_dropdown( $default = 0, $parent = 0, $level = 0 ) {
 	if ( $items ) {
 		foreach ( $items as $item ) {
 			// A page cannot be its own parent.
-			if ( $post && $post->ID && $item->ID == $post->ID )
+			if ( $post->ID && $item->ID == $post->ID )
 				continue;
 
 			$pad = str_repeat( '&nbsp;', $level * 3 );

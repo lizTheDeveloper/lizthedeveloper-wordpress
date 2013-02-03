@@ -861,7 +861,7 @@ function get_post_status($ID = '') {
  *
  * @return array List of post statuses.
  */
-function get_post_statuses() {
+function get_post_statuses( ) {
 	$status = array(
 		'draft'			=> __('Draft'),
 		'pending'		=> __('Pending Review'),
@@ -882,7 +882,7 @@ function get_post_statuses() {
  *
  * @return array List of page statuses.
  */
-function get_page_statuses() {
+function get_page_statuses( ) {
 	$status = array(
 		'draft'			=> __('Draft'),
 		'private'		=> __('Private'),
@@ -1989,7 +1989,7 @@ function sanitize_post($post, $context = 'display') {
  * @return mixed Sanitized value.
  */
 function sanitize_post_field($field, $value, $post_id, $context) {
-	$int_fields = array('ID', 'post_parent', 'menu_order', 'post_author', 'comment_count');
+	$int_fields = array('ID', 'post_parent', 'menu_order');
 	if ( in_array($field, $int_fields) )
 		$value = (int) $value;
 
@@ -2173,7 +2173,7 @@ function wp_count_attachments( $mime_type = '' ) {
 	$and = wp_post_mime_type_where( $mime_type );
 	$count = $wpdb->get_results( "SELECT post_mime_type, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' $and GROUP BY post_mime_type", ARRAY_A );
 
-	$stats = array();
+	$stats = array( );
 	foreach( (array) $count as $row ) {
 		$stats[$row['post_mime_type']] = $row['num_posts'];
 	}
@@ -2665,7 +2665,7 @@ function wp_get_recent_posts( $args = array(), $output = ARRAY_A ) {
  *
  * If the $postarr parameter has 'ID' set to a value, then post will be updated.
  *
- * You can set the post date manually, by setting the values for 'post_date'
+ * You can set the post date manually, but setting the values for 'post_date'
  * and 'post_date_gmt' keys. You can close the comments or open the comments by
  * setting the value for 'comment_status' key.
  *
@@ -3649,20 +3649,15 @@ function get_pages($args = '') {
 	if ( array_diff( $post_status, get_post_stati() ) )
 		return $pages;
 
-	// $args can be whatever, only use the args defined in defaults to compute the key
+	$cache = array();
 	$key = md5( serialize( compact(array_keys($defaults)) ) );
-	$last_changed = wp_cache_get( 'last_changed', 'posts' );
-	if ( ! $last_changed ) {
-		$last_changed = 1;
-		wp_cache_set( 'last_changed', $last_changed, 'posts' );
-	}
-
-	$cache_key = "get_pages:$key:$last_changed";
-	if ( $cache = wp_cache_get( $cache_key, 'posts' ) ) {
-		// Convert to WP_Post instances
-		$pages = array_map( 'get_post', $cache );
-		$pages = apply_filters('get_pages', $pages, $r);
-		return $pages;
+	if ( $cache = wp_cache_get( 'get_pages', 'posts' ) ) {
+		if ( is_array($cache) && isset( $cache[ $key ] ) && is_array( $cache[ $key ] ) ) {
+			// Convert to WP_Post instances
+			$pages = array_map( 'get_post', $cache[ $key ] );
+			$pages = apply_filters( 'get_pages', $pages, $r );
+			return $pages;
+		}
 	}
 
 	if ( !is_array($cache) )
@@ -3832,11 +3827,8 @@ function get_pages($args = '') {
 		}
 	}
 
-	$page_structure = array();
-	foreach ( $pages as $page )
-		$page_structure[] = $page->ID;
-
-	wp_cache_set( $cache_key, $page_structure, 'posts' );
+	$cache[ $key ] = $pages;
+	wp_cache_set( 'get_pages', $cache, 'posts' );
 
 	// Convert to WP_Post instances
 	$pages = array_map( 'get_post', $pages );
@@ -4670,13 +4662,6 @@ function clean_post_cache( $post ) {
 	if ( 'page' == $post->post_type ) {
 		wp_cache_delete( 'all_page_ids', 'posts' );
 		do_action( 'clean_page_cache', $post->ID );
-	}
-
-	if ( function_exists( 'wp_cache_incr' ) ) {
-		wp_cache_incr( 'last_changed', 1, 'posts' );
-	} else {
-		$last_changed = wp_cache_get( 'last_changed', 'posts' );
-		wp_cache_set( 'last_changed', $last_changed + 1, 'posts' );
 	}
 }
 

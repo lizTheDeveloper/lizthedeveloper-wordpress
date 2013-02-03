@@ -6,6 +6,7 @@
  * @package WordPress
  */
 
+/** Define ABSPATH as this file's directory */
 define( 'WP_INSTALLING', true );
 
 /** Sets up the WordPress Environment. */
